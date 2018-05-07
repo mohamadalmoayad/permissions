@@ -1,5 +1,9 @@
 <?php
 
+use Almoayad\Permissions\middleware\checkPrivilege;
+use Almoayad\Permissions\middleware\checkPermissionsAdmins;
+use Illuminate\Support\Facades\Auth;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,3 +22,12 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::Resource('/links-prefixes', '\Almoayad\Permissions\controllers\LinkPrefixesController');
+Route::Resource('/permissions', '\Almoayad\Permissions\controllers\permissionController')->middleware(checkPermissionsAdmins::class);;
+Route::post('/get-permissions', '\Almoayad\Permissions\controllers\permissionController@getUserPermissions')->name('get-permissions');
+Route::get('/error/no-permission', '\Almoayad\Permissions\controllers\permissionController@showNoPermission');
+
+Route::resource('/test', 'TestController')->middleware(checkPrivilege::class);
+Route::resource('/spare-parts', 'TestController')->middleware(checkPrivilege::class);
+Route::resource('/phones', 'TestController')->middleware(checkPrivilege::class);
