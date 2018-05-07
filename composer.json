@@ -23,7 +23,8 @@
             "database/factories"
         ],
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "Almoayad\\Permissions\\": "packages/almoayad/permissions/src"
         }
     },
     "autoload-dev": {
