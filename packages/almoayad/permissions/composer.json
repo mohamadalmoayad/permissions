@@ -1,0 +1,14 @@
+{
+    "name": "almoayad/permissions",
+    "description": "This package controls users' permission on application routs and protect the app from unauthorized usage",
+    "type": "library",
+    "license": "free",
+    "authors": [
+        {
+            "name": "mohamad almoayad",
+            "email": "mohamadalmoayad@hotmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
