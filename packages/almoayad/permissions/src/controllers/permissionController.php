@@ -42,6 +42,7 @@ class permissionController extends Controller
             if ($index == 1 || $create == 1 || $edit == 1 || $show == 1 || $destroy == 1)
                 $permission = usersPermission::updateOrCreate(['user_id' => $user, 'link' => $link],
                     ['index' => $index, 'create' => $create, 'store' => $store, 'edit' => $edit, 'update' => $update, 'show' => $show, 'destroy' => $destroy, 'created_by' => $creator]);
+            return redirect()->route('permissions.index');
         }
     }
 

@@ -1,7 +1,19 @@
+@extends('permissions::layouts.master')
+
+@section('content')
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <div>
                         <form method="post" action="{{route('get-permissions')}}">
                             {{csrf_field()}}
@@ -15,7 +27,6 @@
                             </select>
                             <button type="submit">get permissions</button>
                         </form>
-
                     </div>
 
                     @if(isset($links))
@@ -82,8 +93,8 @@
             </div>
         </div>
     </div>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+@endsection
+@section('script')
     <script>
         $(document).ready(function () {
             $('.checkbox').on('change', function () {
@@ -97,6 +108,7 @@
             });
         });
     </script>
+@endsection
 
 
 

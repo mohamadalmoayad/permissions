@@ -15,7 +15,7 @@ class CreatePermissionsAdminsTable extends Migration
     {
         Schema::create('PRMSN_permissions_admins', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('user_id')->unique();
             $table->foreign('user_id')->references('id')->on('users');
             $table->boolean('is_active');
             $table->unsignedInteger('created_by');

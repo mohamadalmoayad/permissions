@@ -2,6 +2,7 @@
 
 use Almoayad\Permissions\middleware\checkPrivilege;
 use Almoayad\Permissions\middleware\checkPermissionsAdmins;
+use Almoayad\Permissions\middleware\checkSecurity;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -23,9 +24,10 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::Resource('/links-prefixes', '\Almoayad\Permissions\controllers\LinkPrefixesController');
-Route::Resource('/permissions', '\Almoayad\Permissions\controllers\permissionController')->middleware(checkPermissionsAdmins::class);;
-Route::post('/get-permissions', '\Almoayad\Permissions\controllers\permissionController@getUserPermissions')->name('get-permissions');
+Route::Resource('/admins-permissions', '\Almoayad\Permissions\controllers\permissionAdminsController')->middleware(checkSecurity::class);
+Route::Resource('/links-prefixes', '\Almoayad\Permissions\controllers\LinkPrefixesController')->middleware(checkPermissionsAdmins::class);
+Route::Resource('/permissions', '\Almoayad\Permissions\controllers\permissionController')->middleware(checkPermissionsAdmins::class);
+Route::post('/get-permissions', '\Almoayad\Permissions\controllers\permissionController@getUserPermissions')->name('get-permissions')->middleware(checkPermissionsAdmins::class);
 Route::get('/error/no-permission', '\Almoayad\Permissions\controllers\permissionController@showNoPermission');
 
 Route::resource('/test', 'TestController')->middleware(checkPrivilege::class);
