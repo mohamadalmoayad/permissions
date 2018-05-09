@@ -1,3 +1,5 @@
+@extends('permission::layouts.master')
+@section('content')
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -30,22 +32,23 @@
             </div>
         </div>
     </div>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+@endsection
+@section('script')
     <script>
         $(document).ready(function () {
             $('#active').on('change', function () {
                 var check = $(this).val();
 
-                if(check == 'false'){
+                if (check == 'false') {
                     $('#active').val("true");
-                }else{
+                } else {
                     $('#active').val("false");
                 }
 
             });
         });
     </script>
+@endsection
 
 
 

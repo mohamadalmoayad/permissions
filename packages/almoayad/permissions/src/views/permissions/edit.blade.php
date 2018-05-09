@@ -71,9 +71,7 @@
                                     <th>edit</th>
                                     <th>show</th>
                                     <th>delete</th>
-                                    <th>
-                                        <button type="button" class="btn btn-danger"><i class="fa fa-check-square"></i></button>
-                                    </th>
+                                    <th style="color: red">action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -124,9 +122,11 @@
                                                    value="{{$permission['destroy']}}">
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-dark check-all" id="{{$loop->index}}">
-                                                <i class="fa fa-check-circle"></i></button>
-                                            <input type="hidden" id="flag-{{$loop->index}}" value="0">
+                                            @if($permission['id'] != 0)
+                                                <button type="button" id="{{$permission['id']}}"
+                                                        class="btn btn-danger remove-permission">remove
+                                                </button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
@@ -152,22 +152,18 @@
                     $('#inp-' + id).val(1);
                 }
             });
-            $('.check-all').on('click', function () {
+
+            $('.remove-permission').on('click', function () {
                 let id = $(this).attr('id');
-                let flag = $('#flag-' + id).val();
-                let status = true;
-                if(flag == 0){
-                    status = true;
-                    $('#flag-' + id).val(1);
-                }else {
-                    status = false;
-                    $('#flag-' + id).val(0);
-                }
-                $('#index-' + id).prop("checked", status);
-                $('#create-' + id).prop("checked", status);
-                $('#edit-' + id).prop("checked", status);
-                $('#show-' + id).prop("checked", status);
-                $('#destroy-' + id).prop("checked", status);
+                $.ajax({
+                    type: "post",
+                    url: "/permissions/" + id,
+                    data: {
+                        _method: "delete",
+                    }
+                }).done(function () {
+                    location.reload();
+                });
             });
         });
     </script>

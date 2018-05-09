@@ -15,8 +15,8 @@ class permissionController extends Controller
 
     public function index()
     {
-        $permissions = usersPermission::all();
-        return view('permissions::permissions.index', ['permissions' => $permissions]);
+        $users = User::select('id', 'name')->get();
+        return view('permissions::permissions.index', ['users' => $users]);
     }
 
     public function create()
@@ -42,46 +42,45 @@ class permissionController extends Controller
             if ($index == 1 || $create == 1 || $edit == 1 || $show == 1 || $destroy == 1)
                 $permission = usersPermission::updateOrCreate(['user_id' => $user, 'link' => $link],
                     ['index' => $index, 'create' => $create, 'store' => $store, 'edit' => $edit, 'update' => $update, 'show' => $show, 'destroy' => $destroy, 'created_by' => $creator]);
-            return redirect()->route('permissions.index');
         }
+        return redirect()->route('permissions.index');
     }
 
     public function show($id)
     {
-        return $id;
+        $view = 'permissions.show';
+        $return = $this->getUserPermissions(Request::create('/get-permissions', 'post', ['user' => $id, 'view' => $view]));
+        $permissions = $return['permissions'];
+        $user = $return['user'];
+        return view('permissions::permissions.show', ['permissions' => $permissions, 'user' => $user]);
     }
 
     public function edit($id)
     {
-        return 'edit';
+        $view = 'permissions.edit';
+        $return = $this->getUserPermissions(Request::create('/get-permissions', 'post', ['user' => $id, 'view' => $view]));
+        $permissions = $return['permissions'];
+        $user = $return['user'];
+        return view('permissions::permissions.edit', ['permissions' => $permissions, 'user' => $user]);
     }
 
     public function update(Request $request, $id)
     {
-        //
+
     }
 
     public function destroy($id)
     {
-        //
+        usersPermission::destroy($id);
     }
 
-    public function checkAge()
-    {
-
-    }
-
-    protected function getUserPermissions(Request $request)
+    public function getUserPermissions(Request $request)
     {
         $user = $request->input('user');
-        $linkArr = [];
-        $prefixArr = [];
-        $indexArr = [];
-        $createArr = [];
-        $showArr = [];
-        $editArr = [];
-        $destroyArr = [];
+        $links = [];
         $routes = Route::getRoutes();
+        $permissions = collect();
+        $collector = collect();
         foreach ($routes as $route) {
             if (in_array("Almoayad\Permissions\middleware\checkPrivilege", $route->action['middleware']) && isset($route->action['as'])) {
                 $prefix = $route->action['prefix'];
@@ -92,60 +91,67 @@ class permissionController extends Controller
                 } else {
                     $link = $prefix . '/' . $aliasName;
                 }
-                if (!in_array($link, $linkArr))
-                    array_push($linkArr, $link);
+                if (!in_array($link, $links)) {
+                    array_push($links, $link);
+                }
             }
         }
-
-        foreach ($linkArr as $link) {
+        foreach ($links as $link) {
+            $collector->put('link', $link);
             $checkLinkPrefix = routesPrefix::select('prefix')->where('link', $link)->first();
             if ($checkLinkPrefix == null) {
-                array_push($prefixArr, "no prefix has been set");
+                $collector->put('prefix', "no prefix has been set");
             } else {
-                array_push($prefixArr, $checkLinkPrefix->prefix);
+                $collector->put('prefix', $checkLinkPrefix->prefix);
             }
             $permission = usersPermission::where('user_id', $user)
                 ->where('link', $link)
                 ->first();
             if ($permission == null) {
-                array_push($indexArr, 0);
-                array_push($createArr, 0);
-                array_push($editArr, 0);
-                array_push($showArr, 0);
-                array_push($destroyArr, 0);
+                $collector->put('id', 0);
+                $collector->put('index', 0);
+                $collector->put('create', 0);
+                $collector->put('edit', 0);
+                $collector->put('show', 0);
+                $collector->put('destroy', 0);
             } else {
+                $collector->put('id', $permission->id);
                 if ($permission->index == 1) {
-                    array_push($indexArr, 1);
+                    $collector->put('index', 1);
                 } else {
-                    array_push($indexArr, 0);
+                    $collector->put('index', 0);
                 }
                 if ($permission->create == 1) {
-                    array_push($createArr, 1);
+                    $collector->put('create', 1);
                 } else {
-                    array_push($createArr, 0);
+                    $collector->put('create', 0);
                 }
                 if ($permission->edit == 1) {
-                    array_push($editArr, 1);
+                    $collector->put('edit', 1);
                 } else {
-                    array_push($editArr, 0);
+                    $collector->put('edit', 0);
                 }
                 if ($permission->show == 1) {
-                    array_push($showArr, 1);
+                    $collector->put('show', 1);
                 } else {
-                    array_push($showArr, 0);
+                    $collector->put('show', 0);
                 }
                 if ($permission->destroy == 1) {
-                    array_push($destroyArr, 1);
+                    $collector->put('destroy', 1);
                 } else {
-                    array_push($destroyArr, 0);
+                    $collector->put('destroy', 0);
                 }
             }
+                $permissions->push($collector);
+            $collector = collect();
         }
-        return view('permissions::permissions.create', ['links' => $linkArr, 'prefixes' => $prefixArr, 'user' => $user, 'indexes' => $indexArr,
-            'creates' => $createArr, 'edits' => $editArr, 'shows' => $showArr, 'destroys' => $destroyArr]);
+        $user = User::select('id', 'name')->where('id', $user)->first();
+        $view = $request->input('view');
+        return view('permissions::' . "$view", ['permissions' => $permissions, 'user' => $user]);
     }
 
-    public function showNoPermission(){
+    public function showNoPermission()
+    {
         return view('permissions::error.404');
     }
 }
